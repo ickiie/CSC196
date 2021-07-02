@@ -26,9 +26,15 @@
     <ClInclude Include="Graphics\Shape.h">
       <Filter>Source\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\ParticleSystem.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\Shape.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ParticleSystem.cpp">
       <Filter>Source\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
