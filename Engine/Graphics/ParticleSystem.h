@@ -3,11 +3,10 @@
 #include "../Math/Color.h"
 #include <vector>
 
-
-namespace nc {
-
-	struct Particle {
-
+namespace nc
+{
+	struct Particle
+	{
 		Vector2 position;
 		Vector2 prevPosition;
 		Vector2 velocity;
@@ -15,11 +14,11 @@ namespace nc {
 		float lifetime;
 		bool isActive{ false };
 
-		static bool isNotActive(Particle particle) { return particle.isActive == false; }
+		static bool IsNotAcive(Particle particle) { return particle.isActive == false; }
 	};
 
-	class ParticleSystem {
-
+	class ParticleSystem
+	{
 	public:
 		void Startup();
 		void Shutdown();
