@@ -4,7 +4,7 @@
 #include "Math/Random.h"
 #include "Mathutils.h"
 #include "Graphics/Shape.h"
-#include "Graphics/ParticleSystem.h"
+#include "Engine.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -16,11 +16,12 @@ nc::Transform transform{ {400, 300}, 0, 3 };
 
 const float speed = 300;
 float timer = 0;
-nc::ParticleSystem particleSystem;
 nc::Vector2 psPosition;
 
 float deltaTime;
 float gameTime = 0;
+
+nc::Engine engine;
 
 bool Update(float dt)
 {
@@ -37,9 +38,8 @@ bool Update(float dt)
 	if (Core::Input::IsPressed(Core::Input::BUTTON_LEFT)) {
 
 		std::vector<nc::Color> colors = { nc::Color::white, nc::Color::red, nc::Color::green, nc::Color::blue, nc::Color::orange, nc::Color::yellow };
-		particleSystem.Create(psPosition, 150, 2, colors[nc::RandomRangeInt(0, colors.size())], 150);
+		engine.Get<nc::ParticleSystem>()->Create(psPosition, 150, 2, colors[nc::RandomRangeInt(0, colors.size())], 150);
 	}
-	particleSystem.Update(dt);
 
 	float thrust = 0;
 	if (Core::Input::IsPressed('A')) transform.rotation -= 5 * dt;	//input.x = -1;
@@ -51,7 +51,9 @@ bool Update(float dt)
 	transform.position.x = nc::Wrap(transform.position.x, 0.0f, 800.0f);
 	transform.position.y = nc::Wrap(transform.position.y, 0.0f, 600.0f);
 
-	particleSystem.Create(transform.position, 3, 2, nc::Color::white, 50);
+
+	engine.Get<nc::ParticleSystem>()->Create(transform.position, 3, 2, nc::Color::white, 50);
+	engine.Update(dt);
 
 	return quit;
 }
@@ -61,7 +63,7 @@ void Draw(Core::Graphics& graphics)
 	
 	float scale = 1 + (std::sin(timer) + 1) * 2;
 	shape.Draw(graphics, transform);
-	particleSystem.Draw(graphics);
+	engine.Get<nc::ParticleSystem>()->Draw(graphics);
 
 	nc::Color color = nc::Lerp(nc::Color::green, nc::Color::orange, psPosition.x / 800);
 	graphics.SetColor(color);
@@ -80,10 +82,10 @@ int main()
 	Core::RegisterUpdateFn(Update);
 	Core::RegisterDrawFn(Draw);
 
-	particleSystem.Startup();
+	engine.Startup();
 
 	Core::GameLoop();
 	Core::Shutdown();
 
-	particleSystem.Shutdown();
+	engine.Shutdown();
 }
