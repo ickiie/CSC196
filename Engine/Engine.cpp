@@ -3,7 +3,7 @@
 namespace nc {
 	void Engine::Startup() {
 		systems.push_back(std::make_unique<ParticleSystem>());
-		//audio system
+		systems.push_back(std::make_unique<AudioSystem>());
 		for (auto& system : systems) {
 
 			system->Startup();

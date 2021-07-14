@@ -39,8 +39,7 @@ bool Update(float dt)
 		std::vector<nc::Color> colors = { nc::Color::white, nc::Color::red, nc::Color::green, nc::Color::blue, nc::Color::orange, nc::Color::yellow };
 		engine.Get<nc::ParticleSystem>()->Create(psPosition, 150, 2, colors[nc::RandomRangeInt(0, colors.size())], 150);
 
-		//Audio
-		//engine.Get<nc::AudioSystem>()->PlayAudio("explosion");
+		engine.Get<nc::AudioSystem>()->PlayAudio("explosion");
 	}
 
 	//engine.Get<nc::ParticleSystem>()->Create(transform.position, 3, 2, nc::Color::white, 50);
@@ -70,9 +69,9 @@ void Draw(Core::Graphics& graphics)
 
 void Init() {
 
-	//engine.get audio
+	engine.Get<nc::AudioSystem>()->AddAudio("explosion", "explosion.wav");
 	scene.AddActor(new Player{ nc::Transform{ nc::Vector2{400, 300}, 0, 3 }, &shape, 300 });
-	for (size_t i = 0; i < 100; i += 0) {
+	for (size_t i = 0; i < 10; i += 0) {
 
 		scene.AddActor(new Enemy{ nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2 }, &shape2, 300 });
 	}
