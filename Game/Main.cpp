@@ -1,10 +1,7 @@
-#include "core.h"
-#include "Math/Vector2.h"
-#include "Math/Color.h"
-#include "Math/Random.h"
-#include "Mathutils.h"
-#include "Graphics/Shape.h"
 #include "Engine.h"
+#include "Actors/Player.h"
+#include "Actors/Enemy.h"
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -12,9 +9,9 @@
 
 std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
 nc::Shape shape{ points, nc::Color{ 1, 0, 1} };
-nc::Transform transform{ {400, 300}, 0, 3 };
+nc::Shape shape2{ points, nc::Color{ 1, 1, 1} };
+//nc::Transform transform{ {400, 300}, 0, 3 };
 
-const float speed = 300;
 float timer = 0;
 nc::Vector2 psPosition;
 
@@ -22,6 +19,8 @@ float deltaTime;
 float gameTime = 0;
 
 nc::Engine engine;
+nc::Scene scene;
+
 
 bool Update(float dt)
 {
@@ -39,20 +38,13 @@ bool Update(float dt)
 
 		std::vector<nc::Color> colors = { nc::Color::white, nc::Color::red, nc::Color::green, nc::Color::blue, nc::Color::orange, nc::Color::yellow };
 		engine.Get<nc::ParticleSystem>()->Create(psPosition, 150, 2, colors[nc::RandomRangeInt(0, colors.size())], 150);
+
+		//Audio
+		//engine.Get<nc::AudioSystem>()->PlayAudio("explosion");
 	}
 
-	float thrust = 0;
-	if (Core::Input::IsPressed('A')) transform.rotation -= 5 * dt;	//input.x = -1;
-	if (Core::Input::IsPressed('D')) transform.rotation += 5 * dt;	//input.x = 1;
-	if (Core::Input::IsPressed('W')) thrust = speed;	//input.y = -1;
-
-	//if (Core::Input::IsPressed('S')) input.y = 1;
-	transform.position += nc::Vector2::Rotate(nc::Vector2::down, transform.rotation) * thrust * dt;
-	transform.position.x = nc::Wrap(transform.position.x, 0.0f, 800.0f);
-	transform.position.y = nc::Wrap(transform.position.y, 0.0f, 600.0f);
-
-
-	engine.Get<nc::ParticleSystem>()->Create(transform.position, 3, 2, nc::Color::white, 50);
+	//engine.Get<nc::ParticleSystem>()->Create(transform.position, 3, 2, nc::Color::white, 50);
+	scene.Update(dt);
 	engine.Update(dt);
 
 	return quit;
@@ -61,8 +53,9 @@ bool Update(float dt)
 void Draw(Core::Graphics& graphics)
 {
 	
-	float scale = 1 + (std::sin(timer) + 1) * 2;
-	shape.Draw(graphics, transform);
+
+	
+	scene.Draw(graphics);
 	engine.Get<nc::ParticleSystem>()->Draw(graphics);
 
 	nc::Color color = nc::Lerp(nc::Color::green, nc::Color::orange, psPosition.x / 800);
@@ -75,6 +68,16 @@ void Draw(Core::Graphics& graphics)
 
 }
 
+void Init() {
+
+	//engine.get audio
+	scene.AddActor(new Player{ nc::Transform{ nc::Vector2{400, 300}, 0, 3 }, &shape, 300 });
+	for (size_t i = 0; i < 100; i += 0) {
+
+		scene.AddActor(new Enemy{ nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2 }, &shape2, 300 });
+	}
+}
+
 int main()
 {
 	char name[] = "CSC196";
@@ -83,6 +86,7 @@ int main()
 	Core::RegisterDrawFn(Draw);
 
 	engine.Startup();
+	Init();
 
 	Core::GameLoop();
 	Core::Shutdown();
