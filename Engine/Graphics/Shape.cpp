@@ -1,4 +1,5 @@
 #include "Shape.h"
+#include <fstream>
 
 namespace nc
 {
@@ -28,5 +29,39 @@ namespace nc
 			graphics.DrawLine(p1.x, p1.y, p2.x, p2.y);
 		}
 	}
+
+	bool Shape::Load(const std::string& filename) {
+
+		bool success = false;
+
+		std::ifstream stream(filename);
+		if (stream.is_open()) {
+
+			success = true;
+
+			color = nc::Color::white;
+
+			// read number of points
+			std::string line;
+			std::getline(stream, line);
+			size_t size = stoi(line);
+
+			// read points
+			for (size_t  i = 0; i < size; i += 1) {
+
+			nc::Vector2 point;
+			stream >> point;
+
+			points.push_back(point);
+
+			}
+
+		}
+
+		return success;
+	}
+
+
+
 }
 
