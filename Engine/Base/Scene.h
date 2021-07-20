@@ -5,12 +5,13 @@
 #include <memory>
 #include <vector>
 
-namespace nc {
-
+namespace nc
+{
 	class Actor;
+	class Engine;
 
-	class Scene : public Object {
-
+	class Scene : public Object
+	{
 	public:
 		void Update(float dt);
 		void Draw(Core::Graphics& graphics);
@@ -25,15 +26,19 @@ namespace nc {
 		template<typename T>
 		std::vector<T*> GetActors();
 
+	public:
+		Engine* engine{ nullptr };
+
 	private:
-		std::list<std::unique_ptr<Actor>> actors;
+		std::vector<std::unique_ptr<Actor>> actors;
+		std::vector<std::unique_ptr<Actor>> newActors;
 	};
 
 	template<typename T>
-	inline T* Scene::GetActor() {
-
-		for (auto& actor : actors) {
-
+	inline T* Scene::GetActor()
+	{
+		for (auto& actor : actors)
+		{
 			if (dynamic_cast<T*>(actor.get())) return dynamic_cast<T*>(actor.get());
 		}
 
@@ -45,12 +50,11 @@ namespace nc {
 	{
 		std::vector<T*> result;
 
-		for (auto& actor : actors) {
-
+		for (auto& actor : actors)
+		{
 			if (dynamic_cast<T*>(actor.get())) result.push_back(dynamic_cast<T*>(actor.get()));
 		}
 
 		return result;
-
-		}
+	}
 }

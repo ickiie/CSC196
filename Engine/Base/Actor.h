@@ -17,8 +17,10 @@ namespace nc {
 		virtual void Update(float dt);
 		virtual void Draw(Core::Graphics& graphics);
 
+		virtual void OnCollision(Actor* actor) {}
+
 	public:
-		bool destroy;
+		bool destroy{ false };
 
 		Transform transform;
 		std::shared_ptr<Shape> shape;
