@@ -56,12 +56,21 @@ namespace nc
 
 			}
 
+			ComputeRadius();
 		}
 
 		return success;
 	}
 
+	void Shape::ComputeRadius() {
 
+		for (auto& point : points) {
+
+			float r = point.Length();
+			if (r > radius) radius = r;
+			radius = std::max(radius, point.Length());
+		}
+	}
 
 }
 

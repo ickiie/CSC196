@@ -11,4 +11,6 @@ public:
 
 private:
 	float speed{ 300 };
+	float fireTimer{ 0 };
+	float fireRate{ 3 };
 };

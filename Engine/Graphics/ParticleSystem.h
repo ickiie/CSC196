@@ -8,7 +8,7 @@ namespace nc
 {
 	
 
-	class ParticleSystem : public System
+	class ParticleSystem : public GraphicsSystem
 	{
 		struct Particle
 		{
@@ -27,7 +27,7 @@ namespace nc
 		void Shutdown() override;
 
 		void Update(float dt) override;
-		void Draw(Core::Graphics& graphics);
+		void Draw(Core::Graphics& graphics) override;
 
 		void Create(const Vector2& position, size_t count, float lifetime, const Color& color, float speed);
 

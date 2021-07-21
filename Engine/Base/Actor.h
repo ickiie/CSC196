@@ -19,8 +19,11 @@ namespace nc {
 
 		virtual void OnCollision(Actor* actor) {}
 
+		float GetRadius();
+
 	public:
 		bool destroy{ false };
+		std::string tag;
 
 		Transform transform;
 		std::shared_ptr<Shape> shape;

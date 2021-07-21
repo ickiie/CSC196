@@ -1,7 +1,5 @@
 #include "AudioSystem.h"
 
-nc::AudioSystem audioSystem;
-
 namespace nc
 {
 	void AudioSystem::Startup()

@@ -9,12 +9,16 @@
 #include "MathUtils.h"
 #include "Transform.h"
 
+#include "Framework/EventSystem.h"
+
 #include "Base/Actor.h"
 #include "Base/Scene.h"
 
+#define	NOMINMAX
 #include "core.h"
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 namespace nc {
 
@@ -25,6 +29,7 @@ namespace nc {
 		void Shutdown();
 
 		void Update(float dt);
+		void Draw(Core::Graphics& graphics);
 
 		template<typename T>
 		T* Get();

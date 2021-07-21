@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "Projectile.h"
 #include "Engine.h"
-#include "MathUtils.h"
+#include "Enemy.h"
 #include <memory>
 
 void Player::Update(float dt) {
@@ -20,7 +20,7 @@ void Player::Update(float dt) {
 
 	// fire
 	fireTimer -= dt;
-	if (Core::Input::IsPressed(VK_SPACE)) {
+	if (fireTimer <= 0 && Core::Input::IsPressed(VK_SPACE)) {
 
 		fireTimer = fireRate;
 		std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
@@ -28,8 +28,26 @@ void Player::Update(float dt) {
 
 		nc::Transform t = transform;
 		t.scale = 0.5f;
-		scene->AddActor(std::make_unique<Projectile>(t, shape, 600.0f));
+
+		std::unique_ptr<Projectile> projectile = std::make_unique<Projectile>(t, shape, 600.0f);
+		projectile->tag = "Player";
+		scene->AddActor(std::move(projectile));
 	}
 
 	scene->engine->Get<nc::ParticleSystem>()->Create(transform.position, 3, 2, nc::Color::white, 50);
+}
+
+void Player::OnCollision(Actor* actor)
+{
+	if (dynamic_cast<Enemy*>(actor))
+	{
+		destroy = true;
+		scene->engine->Get<nc::ParticleSystem>()->Create(transform.position, 200, 1, nc::Color::white, 50);
+		scene->engine->Get<nc::AudioSystem>()->PlayAudio("explosion");
+
+		nc::Event event;
+		event.name = "PlayerDead";
+		event.data = std::string("yes I'm dead");
+		scene->engine->Get<nc::EventSystem>()->Notify(event);
+	}
 }

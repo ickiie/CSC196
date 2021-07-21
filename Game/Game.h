@@ -23,6 +23,9 @@ public:
 private:
 	void UpdateTitle(float dt);
 	void UpdateStartLevel(float dt);
+	
+	void OnAddPoints(const nc::Event& event);
+	void OnPlayerDead(const nc::Event& event);
 
 public:
 	std::unique_ptr<nc::Engine> engine;
