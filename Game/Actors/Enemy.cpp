@@ -8,11 +8,19 @@ void Enemy::Update(float dt) {
 	Actor::Update(dt);
 
 	if (scene->GetActor<Player>()) {
+
 		nc::Vector2 direction = scene->GetActor<Player>()->transform.position - transform.position;
-		transform.rotation = nc::Lerp(transform.rotation, direction.Angle(), 5 * dt);
+		nc::Vector2 forward = nc::Vector2::Rotate(nc::Vector2::right, transform.rotation);
+
+		float turnAngle = nc::Vector2::SignedAngle(forward, direction.Normalized());
+		transform.rotation = transform.rotation + turnAngle * (3 * dt);
+		
+		//transform.rotation = nc::Lerp(transform.rotation, transform.rotation + turnAngle, 2 * dt);
+
+		float angle = nc::Vector2::Angle(direction.Normalized(), forward);
 
 		fireTimer -= dt;
-		if (fireTimer <= 0) {
+		if (fireTimer <= 0 && angle <= nc::DegToRad(10)) {
 
 			fireTimer = fireRate;
 			std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
@@ -21,11 +29,15 @@ void Enemy::Update(float dt) {
 			nc::Transform t = transform;
 			t.scale = 0.5f;
 			scene->AddActor(std::make_unique<Projectile>(t, shape, 600.0f));
+
+			scene->engine->Get<nc::AudioSystem>()->PlayAudio("Elaser");
 		}
 	}
 	transform.position += nc::Vector2::Rotate(nc::Vector2::right, transform.rotation) * speed * dt;
 	transform.position.x = nc::Wrap(transform.position.x, 0.0f, 800.0f);
 	transform.position.y = nc::Wrap(transform.position.y, 0.0f, 600.0f);
+
+	transform.Update();
 }
 
 void Enemy::OnCollision(Actor* actor)

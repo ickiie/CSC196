@@ -11,6 +11,8 @@ void Game::Initialize() {
 	scene->engine = engine.get();
 
 	engine->Get<nc::AudioSystem>()->AddAudio("explosion", "explosion.wav");
+	engine->Get<nc::AudioSystem>()->AddAudio("Plaser", "Plaser.wav");
+	engine->Get<nc::AudioSystem>()->AddAudio("Elaser", "ELaser.wav");
 
 	engine->Get<nc::EventSystem>()->Subscribe("AddPoints", std::bind(&Game::OnAddPoints, this, std::placeholders::_1));
 	engine->Get<nc::EventSystem>()->Subscribe("PlayerDead", std::bind(&Game::OnPlayerDead, this, std::placeholders::_1));
@@ -43,7 +45,8 @@ void Game::Update(float dt) {
 		break;
 	case Game::eState::StartLevel: {
 		
-		std::shared_ptr<nc::Shape> shape = std::make_shared<nc::Shape>();
+		UpdateStartLevel(dt);
+		/*std::shared_ptr<nc::Shape> shape = std::make_shared<nc::Shape>();
 		shape->Load("shape.txt");
 
 		std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
@@ -55,11 +58,14 @@ void Game::Update(float dt) {
 
 			scene->AddActor(std::make_unique<Enemy>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, shape2, 300.0f));
 		}
-
+		*/
 		state = eState::Game;
 	}
 		break;
 	case Game::eState::Game:
+		if (scene->GetActors<Enemy>().size() == 0) {
+			state = eState::Title;
+		}
 		break;
 	case Game::eState::GameOver:
 		break;
@@ -115,17 +121,12 @@ void Game::UpdateTitle(float dt)
 
 void Game::UpdateStartLevel(float dt)
 {
-	std::shared_ptr<nc::Shape> shape = std::make_shared<nc::Shape>();
-	shape->Load("shape.txt");
+	
 
-	std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
-	std::shared_ptr<nc::Shape> shape1 = std::make_shared<nc::Shape>(points, nc::Color{ 0, 1, 0 });
-	std::shared_ptr<nc::Shape> shape2 = std::make_shared<nc::Shape>(points, nc::Color{ 1, 1, 0 });
+	scene->AddActor(std::make_unique<Player>(nc::Transform(nc::Vector2(400.0f, 300.0f), 0.0f, 3.0f), engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("shape.txt"), 300.0f));
+	for (size_t i = 0; i < 2; i += 1) {
 
-	scene->AddActor(std::make_unique<Player>(nc::Transform(nc::Vector2(400.0f, 300.0f), 0.0f, 3.0f), shape, 300.0f));
-	for (size_t i = 0; i < 10; i += 1) {
-
-		scene->AddActor(std::make_unique<Enemy>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, shape2, 300.0f));
+		scene->AddActor(std::make_unique<Enemy>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("enemy.txt"), 100.0f));
 	}
 }
 

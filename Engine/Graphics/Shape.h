@@ -2,12 +2,13 @@
 #include "../Math/Vector2.h"
 #include "../Math/Color.h"
 #include "Transform.h"
+#include "Framework/ResourceSystem.h"
 #include <vector>
 #include <string>
 
 namespace nc
 {
-	class Shape
+	class Shape : public Resource
 	{
 	public:
 		Shape() {}

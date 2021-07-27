@@ -10,6 +10,7 @@
 #include "Transform.h"
 
 #include "Framework/EventSystem.h"
+#include "Framework/ResourceSystem.h"
 
 #include "Base/Actor.h"
 #include "Base/Scene.h"

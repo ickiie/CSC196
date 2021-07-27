@@ -23,22 +23,27 @@ void Player::Update(float dt) {
 	if (fireTimer <= 0 && Core::Input::IsPressed(VK_SPACE)) {
 
 		fireTimer = fireRate;
-		std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
-		std::shared_ptr<nc::Shape> shape = std::make_shared<nc::Shape>(points, nc::Color{ 1, 1, 0 });
-
+		
 		nc::Transform t = transform;
 		t.scale = 0.5f;
 
-		std::unique_ptr<Projectile> projectile = std::make_unique<Projectile>(t, shape, 600.0f);
+		std::unique_ptr<Projectile> projectile = std::make_unique<Projectile>(t, scene->engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("shape.txt"), 600.0f);
 		projectile->tag = "Player";
 		scene->AddActor(std::move(projectile));
+
+		scene->engine->Get<nc::AudioSystem>()->PlayAudio("Plaser");
 	}
 
 	scene->engine->Get<nc::ParticleSystem>()->Create(transform.position, 3, 2, nc::Color::white, 50);
+
+	transform.Update();
 }
 
 void Player::OnCollision(Actor* actor)
 {
+
+	return;
+
 	if (dynamic_cast<Enemy*>(actor))
 	{
 		destroy = true;

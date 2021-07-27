@@ -6,6 +6,7 @@ namespace nc {
 		systems.push_back(std::make_unique<ParticleSystem>());
 		systems.push_back(std::make_unique<AudioSystem>());
 		systems.push_back(std::make_unique<EventSystem>());
+		systems.push_back(std::make_unique<ResourceSystem>());
 
 		std::for_each(systems.begin(), systems.end(), [](auto& system) { system->Startup(); });
 
