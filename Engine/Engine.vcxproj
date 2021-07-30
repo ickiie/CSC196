@@ -32,6 +32,7 @@
     <ClInclude Include="Mathutils.h" />
     <ClInclude Include="Math\Color.h" />
     <ClInclude Include="Math\Matrix22.h" />
+    <ClInclude Include="Math\Matrix33.h" />
     <ClInclude Include="Math\Random.h" />
     <ClInclude Include="Math\Vector2.h" />
     <ClInclude Include="Transform.h" />

@@ -150,6 +150,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Actors\Enemy.cpp" />
+    <ClCompile Include="Actors\frPowerup.cpp" />
+    <ClCompile Include="Actors\gunPowerup.cpp" />
+    <ClCompile Include="Actors\Healer.cpp" />
     <ClCompile Include="Actors\Player.cpp" />
     <ClCompile Include="Actors\Projectile.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -162,6 +165,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actors\Enemy.h" />
+    <ClInclude Include="Actors\frPowerup.h" />
+    <ClInclude Include="Actors\gunPowerup.h" />
+    <ClInclude Include="Actors\Healer.h" />
     <ClInclude Include="Actors\Player.h" />
     <ClInclude Include="Actors\Projectile.h" />
     <ClInclude Include="Game.h" />

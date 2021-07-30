@@ -2,6 +2,9 @@
 #include "Actors/Player.h"
 #include "Actors/Enemy.h"
 #include "Actors/Projectile.h"
+#include "Actors/gunPowerup.h"
+#include "Actors/frPowerup.h"
+#include "Actors/Healer.h"
 
 void Game::Initialize() {
 
@@ -15,7 +18,10 @@ void Game::Initialize() {
 	engine->Get<nc::AudioSystem>()->AddAudio("Elaser", "ELaser.wav");
 
 	engine->Get<nc::EventSystem>()->Subscribe("AddPoints", std::bind(&Game::OnAddPoints, this, std::placeholders::_1));
-	engine->Get<nc::EventSystem>()->Subscribe("PlayerDead", std::bind(&Game::OnPlayerDead, this, std::placeholders::_1));
+	engine->Get<nc::EventSystem>()->Subscribe("PlayerDamaged", std::bind(&Game::OnPlayerDamaged, this, std::placeholders::_1));
+	engine->Get<nc::EventSystem>()->Subscribe("gunPickup", std::bind(&Game::OnGunPowerup, this, std::placeholders::_1));
+	engine->Get<nc::EventSystem>()->Subscribe("frPickup", std::bind(&Game::OnFrPowerup, this, std::placeholders::_1));
+	engine->Get<nc::EventSystem>()->Subscribe("Healer", std::bind(&Game::OnHealer, this, std::placeholders::_1));
 
 	//stateFunction = &Game::UpdateTitle;
 }
@@ -38,36 +44,49 @@ void Game::Update(float dt) {
 			state = eState::StartGame;
 		}
 		break;
-	case Game::eState::StartGame:
+	case Game::eState::StartGame: {
 		score = 0;
-		lives = 3;
+		health = 10;
+		gunLevel = 1;
 		state = eState::StartLevel;
 		break;
-	case Game::eState::StartLevel: {
-		
-		UpdateStartLevel(dt);
-		/*std::shared_ptr<nc::Shape> shape = std::make_shared<nc::Shape>();
-		shape->Load("shape.txt");
-
-		std::vector<nc::Vector2> points = { { -5, -5 }, { 5, -5 }, { 0, 10 }, { -5, -5 } };
-		std::shared_ptr<nc::Shape> shape1 = std::make_shared<nc::Shape>(points, nc::Color{ 0, 1, 0 });
-		std::shared_ptr<nc::Shape> shape2 = std::make_shared<nc::Shape>(points, nc::Color{ 1, 1, 0 });
-
-		scene->AddActor(std::make_unique<Player>(nc::Transform(nc::Vector2(400.0f, 300.0f), 0.0f, 3.0f), shape, 300.0f));
-		for (size_t i = 0; i < 2; i += 1) {
-
-			scene->AddActor(std::make_unique<Enemy>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, shape2, 300.0f));
-		}
-		*/
-		state = eState::Game;
 	}
+	case Game::eState::StartLevel: {
+
+		UpdateStartLevel(dt);
+		state = eState::Game;
 		break;
-	case Game::eState::Game:
+	}
+	case Game::eState::Game: {
 		if (scene->GetActors<Enemy>().size() == 0) {
-			state = eState::Title;
+			state = eState::StartLevel2;
 		}
 		break;
+	}
+	case Game::eState::StartLevel2: {
+		
+		UpdateStartLevel2(dt);
+		state = eState::Level2;
+	}
+	case Game::eState::Level2: {
+		if (scene->GetActors<Enemy>().size() == 0) {
+			state = eState::StartLevel3;
+		}
+		break;
+	}
+	case Game::eState::StartLevel3: {
+
+		UpdateStartLevel3(dt);
+		state = eState::Level3;
+	}
+	case Game::eState::Level3: {
+		if (scene->GetActors<Enemy>().size() == 0) {
+			state = eState::StartLevel2;
+		}
+		break;
+	}
 	case Game::eState::GameOver:
+		scene->RemoveAllActors();
 		break;
 	default:
 		break;
@@ -93,9 +112,21 @@ void Game::Draw(Core::Graphics& graphics) {
 		break;
 	case Game::eState::Game:
 		break;
+	case Game::eState::StartLevel2:
+		break;
+	case Game::eState::Level2:
+		break;
+	case Game::eState::StartLevel3:
+		break;
+	case Game::eState::Level3:
+		break;
 	case Game::eState::GameOver:
 		graphics.SetColor(nc::Color::red);
 		graphics.DrawString(350, 370, "Game Over");
+		graphics.DrawString(350, 400, "Final Score:");
+		graphics.SetColor(nc::Color::white);
+		graphics.DrawString(350, 430, std::to_string(score).c_str());
+		
 		break;
 	default:
 		break;
@@ -103,7 +134,12 @@ void Game::Draw(Core::Graphics& graphics) {
 
 	graphics.SetColor(nc::Color::white);
 	graphics.DrawString(30, 20, std::to_string(score).c_str());
-	graphics.DrawString(750, 20, std::to_string(lives).c_str());
+	graphics.DrawString(750, 20, std::to_string(health).c_str());
+	graphics.DrawString(750, 550, std::to_string(gunLevel).c_str());
+	graphics.DrawString(680, 550, "GUN STAT:");
+	graphics.DrawString(750, 525, std::to_string(frLevel).c_str());
+	graphics.DrawString(680, 525, "FIRE RATE:");
+	graphics.DrawString(680, 20, "HEALTH:");
 
 
 	scene->Draw(graphics);
@@ -121,12 +157,91 @@ void Game::UpdateTitle(float dt)
 
 void Game::UpdateStartLevel(float dt)
 {
-	
-
 	scene->AddActor(std::make_unique<Player>(nc::Transform(nc::Vector2(400.0f, 300.0f), 0.0f, 3.0f), engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("shape.txt"), 300.0f));
+	for (size_t i = 0; i < 4; i += 1) {
+
+		scene->AddActor(std::make_unique<Enemy>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("enemy.txt"), 100.0f));
+	}
+
+	for (size_t i = 0; i < 1; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 80) {
+			scene->AddActor(std::make_unique<gunPowerup>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("gunPowerup.txt")));
+		}
+	}
+
+	for (size_t i = 0; i < 2; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 50) {
+			scene->AddActor(std::make_unique<frPowerup>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("frPowerup.txt")));
+		}
+	}
+
+	for (size_t i = 0; i < 1; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 50) {
+			scene->AddActor(std::make_unique<Healer>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("bomb.txt")));
+		}
+	}
+
+}
+
+void Game::UpdateStartLevel2(float dt)
+{
+	for (size_t i = 0; i < 6; i += 1) {
+
+		scene->AddActor(std::make_unique<Enemy>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("enemy.txt"), 100.0f));
+	}
+
+	for (size_t i = 0; i < 1; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 80) {
+			scene->AddActor(std::make_unique<gunPowerup>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("gunPowerup.txt")));
+		}
+	}
+
+	for (size_t i = 0; i < 2; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 50) {
+			scene->AddActor(std::make_unique<frPowerup>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("frPowerup.txt")));
+		}
+	}
+
+	for (size_t i = 0; i < 1; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 50) {
+			scene->AddActor(std::make_unique<Healer>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("bomb.txt")));
+		}
+	}
+
+}
+
+void Game::UpdateStartLevel3(float dt)
+{
 	for (size_t i = 0; i < 2; i += 1) {
 
 		scene->AddActor(std::make_unique<Enemy>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("enemy.txt"), 100.0f));
+	}
+
+	for (size_t i = 0; i < 1; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 80) {
+			scene->AddActor(std::make_unique<gunPowerup>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("gunPowerup.txt")));
+		}
+	}
+
+	for (size_t i = 0; i < 2; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 50) {
+			scene->AddActor(std::make_unique<frPowerup>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("frPowerup.txt")));
+		}
+	}
+
+	for (size_t i = 0; i < 1; i += 1) {
+		int x = nc::RandomRange(1, 100);
+		if (x >= 50) {
+			scene->AddActor(std::make_unique<Healer>(nc::Transform{ nc::Vector2{nc::RandomRange(0.0f, 800.0f), nc::RandomRange(0.0f, 600.0f)}, nc::RandomRange(0.0f, nc::TwoPi), 2.0f }, engine->Get<nc::ResourceSystem>()->Get<nc::Shape>("bomb.txt")));
+		}
 	}
 }
 
@@ -135,10 +250,28 @@ void Game::OnAddPoints(const nc::Event& event) {
 	score += std::get<int>(event.data);
 }
 
-void Game::OnPlayerDead(const nc::Event& event)
+void Game::OnPlayerDamaged(const nc::Event& event)
 {
-	lives--;
-	std::cout << std::get<std::string>(event.data) << std::endl;
-	state = eState::GameOver;
+	std::cout << "damage\n";
+	health -= 1;
+	if (health <= 0) {
+		state = eState::GameOver;
+	}
+
+}
+
+void Game::OnGunPowerup(const nc::Event& event) {
+	if (gunLevel < 4) {
+		gunLevel += 1;
+	}
+}
+
+void Game::OnFrPowerup(const nc::Event& event) {
+	frLevel += 1;
+}
+
+void Game::OnHealer(const nc::Event& event) {
+
+	health = 10;
 }
 

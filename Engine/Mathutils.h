@@ -12,12 +12,12 @@ namespace nc {
 
 	inline float RadToDeg(float radians) {
 
-		return radians * 100.0f / Pi;
+		return radians * 180.0f / Pi;
 	}
 
 	inline float DegToRad(float degrees) {
 
-		return degrees * Pi / 100.0f;
+		return degrees * Pi / 180.0f;
 	}
 
 	template<typename T>
